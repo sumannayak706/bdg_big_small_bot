@@ -1,0 +1,14 @@
+import os from telegram import Update from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
+
+rounds = [] big_count = small_count = 0
+
+def analyze(n): if n in (3,18): return "Triple" if 4<=n<=10: return "Small" if 11<=n<=17: return "Big" return "Invalid"
+
+async def start(update: Update, ctx: ContextTypes.DEFAULT_TYPE): await update.message.reply_text("Send /result <total> to log.")
+
+async def result(update: Update, ctx: ContextTypes.DEFAULT_TYPE): global big_count, small_count try: total = int(ctx.args[0]); cat = analyze(total) rounds.append((total, cat)) if cat == "Big": big_count += 1 elif cat == "Small": small_count += 1 await update.message.reply_text(f"Round {len(rounds)}: {total} → {cat}") except: await update.message.reply_text("Use: /result <number>")
+
+async def stats(update: Update, ctx: ContextTypes.DEFAULT_TYPE): await update.message.reply_text( f"Rounds: {len(rounds)}\nBig: {big_count}\nSmall: {small_count}" )
+
+if name == "main": TOKEN = os.getenv("TOKEN") app = ApplicationBuilder().token(TOKEN).build() app.add_handler(CommandHandler("start", start)) app.add_handler(CommandHandler("result", result)) app.add_handler(CommandHandler("stats", stats)) app.run_polling()
+
